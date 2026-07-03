@@ -85,11 +85,34 @@ Specify:
 - **Supporting checks:** regression, quality, safety, or durability checks.
 - **Iteration loop:** inspect, change one meaningful thing, run verifier, record evidence, choose next action.
 - **Anti-cheating rules:** do not weaken tests, narrow scope, hide failures, swap in mocks, or change benchmarks without approval.
+- **Architecture/debt guard:** for codebase, runtime, automation, or agentic workflow goals, state how each iteration will control architecture debt instead of only chasing the next passing result.
 - **Approval gates:** irreversible, public, shared, or costly actions need separate user approval.
 - **Blocker standard:** external blocker plus smallest next action; difficulty or uncertainty is not enough.
 - **Completion proof:** exact commands, outputs, paths, screenshots, or readbacks required before `update_goal(status="complete")`.
 
 For flaky or stateful checks, require clean-state reproduction and enough consecutive passes to rule out luck.
+
+For codebase, runtime, automation, or agentic workflow goals, add an **architecture entropy guard** to the loop. Before each non-trivial implementation change, classify the finding as one of:
+
+- **Invariant gap:** a correctness, safety, security, data-integrity, truthfulness, or durability rule is at risk. Fix at the owning contract/module layer and add a regression check.
+- **Capability gap:** reusable behaviour is missing. Add it behind the smallest existing module interface, or explicitly design a new interface before implementation.
+- **One-off observation:** the issue is specific to one target, fixture, selector, prompt, data row, or environment. Record it as evidence/config/playbook/test data instead of hard-coding it in core logic.
+- **Environment issue:** the local runtime, credentials, network, browser, cache, service, or external dependency is unhealthy. Fix or report the environment instead of changing product logic.
+
+For those goals, require each iteration note to include:
+
+```text
+Root cause:
+Owning module/interface:
+Why this is reusable:
+Why this is not a one-off workaround:
+Regression check:
+Debt removed or added:
+```
+
+If several iterations expand capability without simplifying interfaces, schedule a debt burn-down step before broadening scope further. Debt burn-down may delete, merge, extract, rename, move policy from prose into tests/code, or narrow public interfaces; it should not add new feature surface unless needed to prove the refactor.
+
+Do not satisfy a goal by scattering local fixes across call sites when a deeper module or smaller interface should own the behaviour.
 
 ### 6. Keep State Durable
 
@@ -140,7 +163,7 @@ Return:
 1. **Fit:** Goal mode or better alternative, with one-sentence rationale.
 2. **Grounding:** current state, assumptions, evidence gaps.
 3. **Alignment brief:** user intent, observable outcome, success verifier, non-goals, approval gates, assumptions, confirmation state.
-4. **Goal brief:** outcome, baseline, constraints, non-goals, verifier, loop, approval gates, blocker standard, completion proof.
+4. **Goal brief:** outcome, baseline, constraints, non-goals, verifier, loop, architecture/debt guard when applicable, approval gates, blocker standard, completion proof.
 5. **Delegation map:** only when useful and authorized.
 6. **Exact objective:** concise text suitable for `create_goal`.
 7. **Activation state:** `drafted`, `active`, or `not recommended`.
@@ -153,6 +176,7 @@ When operating an active goal:
 
 - inspect goal state when resuming or after material steering;
 - continue while a safe, relevant next step remains;
+- for codebase, runtime, automation, or agentic workflow goals, preserve the architecture/debt guard and record whether each meaningful iteration removed or added debt;
 - mark complete only after the objective and completion proof are satisfied;
 - mark blocked only after the required repeated external blocker threshold is met and no meaningful progress remains;
 - preserve partial results and next action when stopping.
