@@ -75,6 +75,8 @@ Recommend Goal mode only when most are true:
 
 Prefer an ordinary task or plan when the work is one-shot, taste-dependent, blocked on repeated human choices, lacks a credible verifier, or risks unbounded external action.
 
+Choose the simplest loop that can prove the outcome: ordinary turn-based work for one-shot tasks, Goal-based work for repeated verifiable attempts, Time-based work when waiting on CI/review/deploy/external state, Proactive work only for stable low-ambiguity recurring workflows, and Dynamic/Subagent work only for separable lanes with independent verifiers. Do not use Goal mode merely to make a task feel more serious.
+
 ### 5. Define the Loop
 
 Specify:
@@ -83,10 +85,10 @@ Specify:
 - **Baseline:** current state, failure, or starting metric.
 - **Primary verifier:** strongest independent success check.
 - **Supporting checks:** regression, quality, safety, or durability checks.
-- **Iteration loop:** inspect, change one meaningful thing, run verifier, record evidence, choose next action.
+- **Iteration loop:** observe current facts, decide the next smallest meaningful action, act, verify, record evidence, then route to the next iteration, wait state, approval gate, blocker, or completion.
 - **Anti-cheating rules:** do not weaken tests, narrow scope, hide failures, swap in mocks, or change benchmarks without approval.
 - **Architecture/debt guard:** for codebase, runtime, automation, or agentic workflow goals, state how each iteration will control architecture debt instead of only chasing the next passing result.
-- **Approval gates:** irreversible, public, shared, or costly actions need separate user approval.
+- **Approval gates:** irreversible, public, shared, or costly actions need separate user approval. For delivery goals, name `commit`, `push`, `PR`, `merge`, and `deploy` as separate authorization layers; approval to implement is not approval for later remote, public, or production actions.
 - **Blocker standard:** external blocker plus smallest next action; difficulty or uncertainty is not enough.
 - **Completion proof:** exact commands, outputs, paths, screenshots, or readbacks required before `update_goal(status="complete")`.
 
@@ -177,6 +179,8 @@ When operating an active goal:
 - inspect goal state when resuming or after material steering;
 - continue while a safe, relevant next step remains;
 - for codebase, runtime, automation, or agentic workflow goals, preserve the architecture/debt guard and record whether each meaningful iteration removed or added debt;
+- before marking complete, run an evaluator pass against the user's real intent, non-goals, regression risk, and unverified scope instead of relying only on the last passing check;
 - mark complete only after the objective and completion proof are satisfied;
 - mark blocked only after the required repeated external blocker threshold is met and no meaningful progress remains;
+- if the same non-external failure cause repeats three times without a new path, stop the same-direction loop and report the blocker, evidence, and smallest useful next action;
 - preserve partial results and next action when stopping.
